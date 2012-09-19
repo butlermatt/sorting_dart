@@ -1,0 +1,237 @@
+#import('dart:isolate');
+#import('dart:math');
+
+/** 
+ * Generate list of random numbers.
+ * [List] will be [size] elements in length.
+ * Returned list will contain elements from 0 to [size]
+ */
+List<num> createList(int size) {
+  var randGen = new Random();
+  var retList = new List<num>(size);
+  for(var i = 0; i < size; i++) {
+    retList[i] = randGen.nextInt(size);
+  }
+  
+  return retList;
+}
+
+void main() {
+  var myList = createList(5000);
+  print(myList);
+  var stopWatch = new Stopwatch()..start();
+  var quicksortList = quicksort(myList);
+  print(quicksortList);
+  stopWatch.stop();
+  print('QS Time: ${stopWatch.elapsedInUs()}');
+  stopWatch.reset();
+  
+  stopWatch.start();
+  var bubblesortList = bubbleSort(myList);
+  print(bubblesortList);
+  stopWatch.stop();
+  print('Bubble Time: ${stopWatch.elapsedInUs()}');
+  stopWatch.reset();
+  
+  stopWatch.start();
+  var listSort = new List<num>.from(myList);
+  listSort.sort((a, b) => a - b);
+  print(listSort);
+  stopWatch.stop();
+  print('List.Sort Time: ${stopWatch.elapsedInUs()}');
+  stopWatch.reset();
+  
+  stopWatch.start();
+  var insertList = insertSort(myList);
+  print(insertList);
+  stopWatch.stop();
+  print('Insert Time: ${stopWatch.elapsedInUs()}');
+  stopWatch.reset();
+  
+  stopWatch.start();
+  var selectSortList = selectSort(myList);
+  print(selectSortList);
+  stopWatch.stop();
+  print('Select Time: ${stopWatch.elapsedInUs()}');
+  stopWatch.reset();
+  
+  stopWatch.start();
+  isolateQuicksort(myList).then((isolateSort) { 
+    print(isolateSort);
+    stopWatch.stop();
+    print('Iso Time: ${stopWatch.elapsedInUs()}');
+  });
+  stopWatch.reset();
+ 
+}
+
+/**
+ * Recursively call quicksort on [list] until ordered
+ * list is returned. Uses a random pivot value 
+ * (selected with: list[list.lenght ~/ 2])
+ * See: http://en.wikipedia.org/wiki/Quicksort
+ * This version is *very* memory unfriendly.
+ */
+List<num> quicksort(List<num> list) {
+
+  if(list.length <= 1) return list;
+  
+  var pivotInd = list.length ~/ 2;
+  var pivotVal = list[pivotInd];
+  var lower = new List<num>();
+  var upper = new List<num>();
+  
+  for(var i = 0; i < list.length; i++) {
+    if(i == pivotInd) continue;
+    if(list[i] <= pivotVal) {
+      lower.add(list[i]);
+    } else {
+      upper.add(list[i]);
+    }
+  }
+  
+  // Could use .from() constructor and cascades to tighten this up.
+  var ret = new List<num>();
+  ret.addAll(quicksort(lower));
+  ret.add(pivotVal);
+  ret.addAll(quicksort(upper));
+  return ret;
+}
+
+/**
+ * Isolates cannot directly pass messages through parameters,
+ * so this function wraps the [quicksort] function and uses
+ * [port] to get the [ReceivePort].
+ * Replies to [SendPort] with list sorted by [quicksort].
+ */
+void isolateWrapper() {
+  port.receive((list, replyto) {
+    var myList = quicksort(list);
+    replyto.send(myList);
+  });
+}
+
+/**
+ * Returns a [Future] for the sorted [List]. This function performs
+ * the normal first step of Quicksort selecting a random pivot value
+ * and generates an upper and lower list. These lists are then passed
+ * to a new Isolate which then calls standard [quicksort] function on
+ * each. Esentually this simultaneously performs two quicksorts on
+ * two different lists and then joins the results around the original
+ * pivot point once both have completed.
+ */
+Future<List<num>> isolateQuicksort(List<num> list) {
+  var completer = new Completer();
+  var ret = new List<num>();
+  
+  var pivotInd = list.length ~/ 2;
+  var pivotVal = list[pivotInd];
+  
+  var lower = new List<num>();
+  var upper = new List<num>();
+  
+  for(var i = 0; i < list.length; i++) {
+    if(i == pivotInd) continue;
+    if(list[i] <= pivotVal) {
+      lower.add(list[i]);
+    } else {
+      upper.add(list[i]);
+    }
+  }
+  
+  // Could merge these into Futures.wait but for visualization
+  // this is a little easier.
+  var lowFut = spawnFunction(isolateWrapper).call(lower);
+  var hiFut = spawnFunction(isolateWrapper).call(upper);
+  Futures.wait([lowFut, hiFut]).then((compLists) {
+    var lowList;
+    var hiList;
+    
+    // Can arrive in any order so check.
+    if(compLists[0][0] < compLists[1][0]) {
+      //First list is smaller
+      lowList = compLists[0];
+      hiList = compLists[1];
+    } else {
+      lowList = compLists[1];
+      hiList = compLists[0];
+    }
+    ret.addAll(lowList);
+    ret.add(pivotVal);
+    ret.addAll(hiList);
+    completer.complete(ret);
+  });
+  
+  return completer.future;
+}
+
+/**
+ * Completes a Bubblesort on [list] returning the sorted [List]
+ * This is only a single comparison and not bi-directional 
+ * (Cocktail sort).
+ */
+List<num> bubbleSort(List<num> list) {
+  var retList = new List<num>.from(list);
+  var tmp;
+  var swapped = false;
+  do {
+    swapped = false;
+    for(var i = 1; i < retList.length; i++) {
+      if(retList[i - 1] > retList[i]) {
+        tmp = retList[i - 1];
+        retList[i - 1] = retList[i];
+        retList[i] = tmp;
+        swapped = true;
+      }
+    }
+  } while(swapped);
+  
+  return retList;
+}
+
+List<num> insertSort(List<num> list) {
+  var retList = new List<num>();
+  for(var el in list) {
+    var inserted = false;
+    if(retList.isEmpty()) {
+      retList.add(el);
+      continue;
+    }
+    for(var i = 0; i < retList.length; i++) {
+      if(el < retList[i]) {
+        retList.insertRange(i, 1, el);
+        inserted = true;
+        break;
+      }
+    }
+    if(!inserted) {
+      retList.add(el);
+    }
+  }
+  
+  return retList;
+}
+
+List<num> selectSort(List<num> list) {
+  var retList = new List<num>.from(list);
+  var position = 0;
+  var minInd = 0;
+  
+  do {
+    for(var i = position; i < retList.length; i++) {
+      if(i == minInd) continue;
+      if(retList[i] < retList[minInd]) {
+        minInd = i;
+      }
+    }
+    if(position != minInd) {
+      var tmp = retList[position];
+      retList[position] = retList[minInd];
+      retList[minInd] = tmp;
+    }
+    position += 1;
+    minInd = position;
+  } while(position < retList.length);
+  
+  return retList;
+}
