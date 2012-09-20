@@ -19,7 +19,10 @@ List<num> createList(int size) {
 }
 
 void main() {
+  // Change the value to passed to create a larger or smaller list
+  // to be sorted.
   var myList = createList(1000);
+  
   var stopWatch = new Stopwatch()..start();
   var quicksortList = quicksort(myList);
   stopWatch.stop();

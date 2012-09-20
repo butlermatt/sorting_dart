@@ -1,4 +1,4 @@
-== sorting_dart ==
+# sorting_dart #
 
 Currently contains only one file with the sorting algorithm. This was 
 primarily a personal project to learn about the algorithms and see some
