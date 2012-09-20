@@ -26,7 +26,7 @@ void main() {
   var stopWatch = new Stopwatch()..start();
   var quicksortList = quicksort(myList);
   stopWatch.stop();
-  print('Qicksort Time: ${stopWatch.elapsedInUs()}');
+  print('Quicksort Time: ${stopWatch.elapsedInUs()}');
   stopWatch.reset();
   
   stopWatch.start();
@@ -51,7 +51,7 @@ void main() {
   stopWatch.start();
   var selectSortList = selectSort(myList);
   stopWatch.stop();
-  print('Selection Time: ${stopWatch.elapsedInUs()}');
+  print('Selection Sort Time: ${stopWatch.elapsedInUs()}');
   stopWatch.reset();
   
   // Due to a weirdness with futures and isolates,
