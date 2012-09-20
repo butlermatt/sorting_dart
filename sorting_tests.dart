@@ -17,49 +17,44 @@ List<num> createList(int size) {
 }
 
 void main() {
-  var myList = createList(5000);
-  print(myList);
+  var myList = createList(1000);
   var stopWatch = new Stopwatch()..start();
   var quicksortList = quicksort(myList);
-  print(quicksortList);
   stopWatch.stop();
-  print('QS Time: ${stopWatch.elapsedInUs()}');
+  print('Qicksort Time: ${stopWatch.elapsedInUs()}');
   stopWatch.reset();
   
   stopWatch.start();
   var bubblesortList = bubbleSort(myList);
-  print(bubblesortList);
   stopWatch.stop();
-  print('Bubble Time: ${stopWatch.elapsedInUs()}');
+  print('Bubblesort Time: ${stopWatch.elapsedInUs()}');
   stopWatch.reset();
   
   stopWatch.start();
   var listSort = new List<num>.from(myList);
   listSort.sort((a, b) => a - b);
-  print(listSort);
   stopWatch.stop();
   print('List.Sort Time: ${stopWatch.elapsedInUs()}');
   stopWatch.reset();
   
   stopWatch.start();
   var insertList = insertSort(myList);
-  print(insertList);
   stopWatch.stop();
-  print('Insert Time: ${stopWatch.elapsedInUs()}');
+  print('Insertion Sort Time: ${stopWatch.elapsedInUs()}');
   stopWatch.reset();
   
   stopWatch.start();
   var selectSortList = selectSort(myList);
-  print(selectSortList);
   stopWatch.stop();
-  print('Select Time: ${stopWatch.elapsedInUs()}');
+  print('Selection Time: ${stopWatch.elapsedInUs()}');
   stopWatch.reset();
   
+  // Due to a weirdness with futures and isolates,
+  // this test should be last.
   stopWatch.start();
   isolateQuicksort(myList).then((isolateSort) { 
-    print(isolateSort);
     stopWatch.stop();
-    print('Iso Time: ${stopWatch.elapsedInUs()}');
+    print('Isolate Quicksort Time: ${stopWatch.elapsedInUs()}');
   });
   stopWatch.reset();
  
@@ -149,6 +144,13 @@ Future<List<num>> isolateQuicksort(List<num> list) {
     
     // Can arrive in any order so check.
     if(compLists[0][0] < compLists[1][0]) {
+      /* In rare cases, (particularly with small lists)
+       * it is possible that the above will not work due
+       * to the original pivot point being the upper
+       * or lower extent of the list resulting in
+       * one list being empty.
+       * This is a known issue due to lack of checking.
+       * These are proof of concept only not iron clad */
       //First list is smaller
       lowList = compLists[0];
       hiList = compLists[1];
@@ -169,6 +171,7 @@ Future<List<num>> isolateQuicksort(List<num> list) {
  * Completes a Bubblesort on [list] returning the sorted [List]
  * This is only a single comparison and not bi-directional 
  * (Cocktail sort).
+ * See: http://en.wikipedia.org/wiki/Bubblesort
  */
 List<num> bubbleSort(List<num> list) {
   var retList = new List<num>.from(list);
@@ -189,6 +192,11 @@ List<num> bubbleSort(List<num> list) {
   return retList;
 }
 
+/**
+ * Completes Insertion Sort on [list], returning a new [List]
+ * with the sorted elements.
+ * See: http://en.wikipedia.org/wiki/Insertion_sort
+ */
 List<num> insertSort(List<num> list) {
   var retList = new List<num>();
   for(var el in list) {
@@ -212,6 +220,11 @@ List<num> insertSort(List<num> list) {
   return retList;
 }
 
+
+/**
+ * Run a Selection Sort on [list]. Returns a new [List]
+ * with the sorted elements.
+ */
 List<num> selectSort(List<num> list) {
   var retList = new List<num>.from(list);
   var position = 0;
