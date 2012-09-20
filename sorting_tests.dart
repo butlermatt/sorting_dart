@@ -1,3 +1,5 @@
+#library('sorting_dart');
+
 #import('dart:isolate');
 #import('dart:math');
 
