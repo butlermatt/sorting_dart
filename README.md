@@ -19,6 +19,7 @@ Implemented Algorithms
  * [Bubblesort](http://en.wikipedia.org/wiki/Bubblesort)
  * [Insertion Sort](http://en.wikipedia.org/wiki/Insertion_sort)
  * [Selection Sort](http://en.wikipedia.org/wiki/Selection_sort)
+ * [Selection Cocktail Sort](http://en.wikipedia.org/wiki/Selection_sort#Variants)
  * [List.sort API](http://api.dartlang.org/docs/continuous/dart_core/List.html#sort)
 
 Tips

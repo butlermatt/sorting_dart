@@ -21,12 +21,13 @@ List<num> createList(int size) {
 void main() {
   // Change the value to passed to create a larger or smaller list
   // to be sorted.
-  var myList = createList(1500);
+  var myList = createList(1000);
   
   var stopWatch = new Stopwatch()..start();
-  var quicksortList = quicksort(myList);
+  var listSort = new List<num>.from(myList);
+  listSort.sort((a, b) => a - b);
   stopWatch.stop();
-  print('Quicksort Time: ${stopWatch.elapsedInUs()}');
+  print('List.Sort Time: ${stopWatch.elapsedInUs()}');
   stopWatch.reset();
   
   stopWatch.start();
@@ -34,12 +35,11 @@ void main() {
   stopWatch.stop();
   print('Bubblesort Time: ${stopWatch.elapsedInUs()}');
   stopWatch.reset();
-  
+
   stopWatch.start();
-  var listSort = new List<num>.from(myList);
-  listSort.sort((a, b) => a - b);
+  var quicksortList = quicksort(myList);
   stopWatch.stop();
-  print('List.Sort Time: ${stopWatch.elapsedInUs()}');
+  print('Quicksort Time: ${stopWatch.elapsedInUs()}');
   stopWatch.reset();
   
   stopWatch.start();
@@ -52,6 +52,12 @@ void main() {
   var selectSortList = selectSort(myList);
   stopWatch.stop();
   print('Selection Sort Time: ${stopWatch.elapsedInUs()}');
+  stopWatch.reset();
+  
+  stopWatch.start();
+  var selectCocktailSortList = selectCocktailSort(myList);
+  stopWatch.stop();
+  print('Selection Cocktail Sort Time: ${stopWatch.elapsedInUs()}');
   stopWatch.reset();
   
   // Due to a weirdness with futures and isolates,
@@ -243,14 +249,68 @@ List<num> selectSort(List<num> list) {
         minInd = i;
       }
     }
+    
     if(position != minInd) {
       var tmp = retList[position];
       retList[position] = retList[minInd];
       retList[minInd] = tmp;
     }
+    
     position += 1;
     minInd = position;
   } while(position < retList.length);
+  
+  return retList;
+}
+
+/**
+ * selectCocktailSort is a variation of [selectSort] which simultaneously
+ * finds and moves the largest element as well as lowest element.
+ * Runs a Selection Cocktail Sort on [list] and returns a new sorted [List]
+ * See: http://en.wikipedia.org/wiki/Selection_sort#Variants
+ * (Also known as Bidirectional Selection Sort)
+ */
+List<num> selectCocktailSort(List<num> list) {
+  var retList = new List<num>.from(list);
+  var position = 0;
+  var hiPosition = 0;
+  var minInd = 0;
+  var maxInd = 0;
+  var tmp;
+  
+  do {
+    for(var i = position; i < (retList.length - position); i++) {
+      if(retList[i] < retList[minInd]) {
+        minInd = i;
+      }
+      if(retList[i] > retList[maxInd]) {
+        maxInd = i;   
+      }
+    }
+    
+    if(position != minInd) {
+      tmp = retList[position];
+      retList[position] = retList[minInd];
+      retList[minInd] = tmp;
+    } 
+    
+    hiPosition = (retList.length - 1) - position;
+    if(hiPosition != maxInd) {
+      if(maxInd == position) {
+        // The largest variable is at the lower position.
+        // It has been moved so we need to switch it here too.
+        maxInd = minInd;
+      }
+      
+      tmp = retList[hiPosition];
+      retList[hiPosition] = retList[maxInd];
+      retList[maxInd] = tmp;
+    }
+    
+    position += 1;
+    minInd = position;
+    maxInd = position;
+  } while(position <= (retList.length ~/ 2));
   
   return retList;
 }
