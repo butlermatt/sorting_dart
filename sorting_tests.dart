@@ -229,6 +229,7 @@ List<num> insertSort(List<num> list) {
 /**
  * Run a Selection Sort on [list]. Returns a new [List]
  * with the sorted elements.
+ * See: http://en.wikipedia.org/wiki/Selection_sort
  */
 List<num> selectSort(List<num> list) {
   var retList = new List<num>.from(list);

@@ -11,6 +11,16 @@ potentially resource hungry. These samples were written as proof of
 concept and not for performance or with other constraints in mind.
 **Use at your own risk**
 
+Currently Implemented Algorithms
+--------------------------------
+
+ * [Quicksort](http://en.wikipedia.org/wiki/Quicksort)
+ * [Quicksort Parallelization](http://en.wikipedia.org/wiki/Quicksort#Parallelization)
+ * [Bubblesort](http://en.wikipedia.org/wiki/Bubblesort)
+ * [Insertion Sort](http://en.wikipedia.org/wiki/Insertion_sort)
+ * [Selection Sort](http://en.wikipedia.org/wiki/Selection_sort)
+ * [List.sort API](http://api.dartlang.org/docs/continuous/dart_core/List.html#sort)
+
 Tips
 ----
 
