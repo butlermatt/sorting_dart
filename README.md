@@ -29,3 +29,4 @@ As an experiment, try also disabling the Debugging and disabling
 Checked Mode to see the difference they make in execution times.
 These options are available from *Manage Launches* or with 
 *CTRL-Shift-M*.
+
